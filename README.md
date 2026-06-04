@@ -2,8 +2,6 @@
 
 A fullscreen ambient display for a second monitor. Pulls landscape photos from Unsplash, renders them as multi-layer ASCII art with a real **AI-estimated depth map** (Depth Anything via transformers.js, in-browser, WebGPU-accelerated), and overlays a large **split-flap digital clock** with parallax, Ken Burns drift, and subtle chroma aberration.
 
-No admin install, no Python — pure Node + browser.
-
 ![ascii-clock preview](docs/preview.png)
 
 ---
@@ -29,27 +27,39 @@ No admin install, no Python — pure Node + browser.
 
 ## Installation
 
-### 1. Clone / open the folder
+### 1. Clone the repo
+
+**Windows (PowerShell)**
 
 ```powershell
-cd "D:\Programming\ASCII art animations"
+git clone <repo-url> ascii-clock
+cd ascii-clock
+```
+
+**macOS / Linux**
+
+```bash
+git clone <repo-url> ascii-clock
+cd ascii-clock
 ```
 
 ### 2. Install dependencies
 
-```powershell
+Same on every platform:
+
+```bash
 npm install
 ```
 
-> **Behind a flaky network?** If `registry.npmjs.org` keeps dropping connections (ECONNRESET), use the mirror once:
+> **Behind a flaky network?** If `registry.npmjs.org` keeps dropping connections (ECONNRESET), use a mirror once:
 >
-> ```powershell
+> ```bash
 > npm install --registry=https://registry.npmmirror.com
 > ```
 >
 > Or set it permanently for your user:
 >
-> ```powershell
+> ```bash
 > npm config set registry https://registry.npmmirror.com
 > ```
 
@@ -57,12 +67,23 @@ The depth-estimation runtime (`@huggingface/transformers`) is **not** installed 
 
 ### 3. Add your Unsplash key
 
-Copy the example file and paste your access key:
+Get a free key from <https://unsplash.com/oauth/applications>, then create `.env.local`:
+
+**Windows (PowerShell)**
 
 ```powershell
 Copy-Item .env.example .env.local
 notepad .env.local
 ```
+
+**macOS / Linux**
+
+```bash
+cp .env.example .env.local
+open -e .env.local   # or: nano .env.local
+```
+
+Paste your key:
 
 ```env
 VITE_UNSPLASH_ACCESS_KEY=your_demo_key_here
@@ -72,7 +93,7 @@ VITE_UNSPLASH_ACCESS_KEY=your_demo_key_here
 
 ### 4. Start the dev server
 
-```powershell
+```bash
 npm run dev
 ```
 
@@ -80,7 +101,7 @@ Open the printed URL (usually <http://localhost:5173/>). Drag the window to your
 
 ### 5. Build (optional, for `vite preview`)
 
-```powershell
+```bash
 npm run build
 npm run preview
 ```
@@ -181,3 +202,7 @@ If you want a slower cycle:
 Photos by their respective authors on [Unsplash](https://unsplash.com/?utm_source=ascii-clock&utm_medium=referral) — credits are shown briefly in the bottom-right corner on every image change.
 
 Depth model: [`Xenova/depth-anything-small-hf`](https://huggingface.co/Xenova/depth-anything-small-hf) (ONNX port of [Depth Anything](https://github.com/LiheYoung/Depth-Anything)).
+
+---
+
+Made by **Rohan Nag** with help from **Claude**.
