@@ -1,0 +1,294 @@
+:root {
+  --bg: #050608;
+  --fg: #e7e9ec;
+  --accent: #ffd27a;
+  --card: #0c0d11;
+  --card-2: #14161c;
+  --hinge: rgba(0, 0, 0, 0.85);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  background: radial-gradient(ellipse at center, #0a0b10 0%, #000 100%);
+}
+
+/* ============ ASCII LAYERS ============ */
+#ascii-layers {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ascii-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+  transform-style: preserve-3d;
+  mix-blend-mode: screen;
+}
+
+.ascii-layer canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ascii-layer.bg {
+  filter: blur(2.5px) brightness(0.55);
+  opacity: 0.85;
+}
+.ascii-layer.mid {
+  filter: blur(0.6px) brightness(0.85);
+  opacity: 0.95;
+}
+.ascii-layer.fg {
+  filter: brightness(1.15) drop-shadow(0 0 6px rgba(255, 210, 122, 0.18));
+}
+
+/* Chroma aberration on foreground (two extra tinted copies) */
+.ascii-layer.fg .chroma-r {
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  filter: drop-shadow(1.5px 0 0 #ff3a4d) brightness(0.8);
+}
+.ascii-layer.fg .chroma-b {
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  filter: drop-shadow(-1.5px 0 0 #2a6bff) brightness(0.8);
+}
+
+/* Ken Burns container */
+.kb {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity, filter;
+  transform-origin: 50% 50%;
+}
+
+/* ============ CLOCK ============ */
+#clock-wrap {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Clock container: no background card, just a wide flex row. */
+#clock {
+  display: flex;
+  align-items: center;
+  gap: 0.45vw;
+  padding: 0;
+  background: transparent;
+  width: 60vw;
+  max-width: 60vw;
+  transition: opacity 0.35s ease;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.75));
+}
+
+#clock.hidden {
+  opacity: 0;
+}
+
+/* ---- FLAP ---- */
+/* Each flap is a 3D-perspective cell. The two static halves show the *new* digit
+   (one clipped to its top half, the other to its bottom half) and sit on a card.
+   Two flippers rotate over them to animate the change. */
+.flap {
+  position: relative;
+  width: 7.5vw;
+  height: 11vw;
+  perspective: 800px;
+  font-family: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  color: #f3f4f6;
+  user-select: none;
+}
+
+.flap .half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1a1c22 0%, #0c0d11 100%);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+
+.flap .half.top {
+  top: 0;
+  border-radius: 0.6vw 0.6vw 0 0;
+  border-bottom: 1px solid var(--hinge);
+}
+.flap .half.bottom {
+  bottom: 0;
+  border-radius: 0 0 0.6vw 0.6vw;
+  background: linear-gradient(180deg, #0c0d11 0%, #14161c 100%);
+}
+
+/* Glyph: one span per half, sized to the full flap, absolutely centered on the
+   seam so the top half shows the upper portion of the digit and the bottom half
+   shows the lower portion — making both halves form one continuous character. */
+.flap .half span {
+  position: absolute;
+  left: 50%;
+  width: 100%;
+  height: 200%; /* twice the half = full flap height */
+  font-size: 11vw;
+  line-height: 11vw;
+  letter-spacing: -0.04em;
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+/* Top half: glyph anchored so its center sits at the seam (bottom of this half). */
+.flap .half.top span {
+  bottom: 0;
+  transform: translate(-50%, 50%);
+}
+/* Bottom half: glyph anchored so its center sits at the seam (top of this half). */
+.flap .half.bottom span {
+  top: 0;
+  transform: translate(-50%, -50%);
+}
+
+.flap .flipper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.flap .flipper.top {
+  top: 0;
+  transform-origin: 50% 100%;
+}
+.flap .flipper.bottom {
+  bottom: 0;
+  transform-origin: 50% 0%;
+}
+.flap .flipper.top .half {
+  top: 0;
+}
+.flap .flipper.bottom .half {
+  bottom: 0;
+}
+
+/* Colon separator */
+.colon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.6vw;
+  padding: 0 0.4vw;
+  color: var(--accent);
+  animation: colonPulse 1s ease-in-out infinite;
+}
+.colon span {
+  display: block;
+  width: 1vw;
+  height: 1vw;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 16px currentColor;
+}
+
+@keyframes colonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.ampm {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.6vw;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  margin-left: 0.8vw;
+  align-self: flex-start;
+  padding-top: 0.6vw;
+  text-shadow: 0 0 12px rgba(255, 210, 122, 0.5);
+}
+
+/* ============ CREDIT / STATUS / HINT ============ */
+#credit {
+  position: fixed;
+  bottom: 1.2vw;
+  right: 1.4vw;
+  font-size: 0.8vw;
+  color: rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 5;
+  pointer-events: auto;
+}
+#credit.show {
+  opacity: 1;
+}
+#credit a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+#status {
+  position: fixed;
+  top: 1vw;
+  left: 1.2vw;
+  font-size: 0.85vw;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  z-index: 20;
+  transition: opacity 0.5s ease;
+}
+#status.hidden { opacity: 0; }
+
+#hint {
+  position: fixed;
+  bottom: 1vw;
+  left: 1.2vw;
+  font-size: 0.7vw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  z-index: 5;
+  transition: opacity 0.6s ease;
+}
+.idle #hint, .idle #credit { opacity: 0; }
+.idle { cursor: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kb { animation: none !important; transition: opacity 0.6s ease !important; }
+  .ascii-layer { transform: none !important; }
+  .colon { animation: none; }
+}
